@@ -33,16 +33,16 @@ jobs:
     - name: change to the cloned repo
       run: cd temp-repo
     
-    - name: Configure Git
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-    
-    - name: Push changes
-      run: |
-        git remote set-url origin https://SVenkataSivaSatish:${{ secrets.GH_TOKEN }}@github.com/SVenkataSivaSatish/app-repo.git
-        git push origin main 
-    # - name: push the contents to the app-repo 
+    # - name: Configure Git
     #   run: |
-    #     git remote set-url origin https://github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
-    #     git push -u origin main
+    #     git config user.name "github-actions[bot]"
+    #     git config user.email "github-actions[bot]@users.noreply.github.com"
+    
+    # - name: Push changes
+    #   run: |
+    #     git remote set-url origin https://SVenkataSivaSatish:${{ secrets.GH_TOKEN }}@github.com/SVenkataSivaSatish/app-repo.git
+    #     git push origin main 
+    - name: push the contents to the app-repo 
+      run: |
+        git remote set-url origin https://github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
+        git push -u origin main
