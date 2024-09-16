@@ -44,5 +44,6 @@ jobs:
     #     git push origin main 
     - name: push the contents to the app-repo 
       run: |
+        git remote add origin https://github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
         git remote set-url origin https://github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
         git push -u origin main
