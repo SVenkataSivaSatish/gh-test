@@ -19,16 +19,16 @@ jobs:
         echo "::set-output name=repo_name::$(jq -r '.repo_name' repo-details.json)"
         echo "::set-output name=source_repo::$(jq -r '.source_repo' repo-details.json)"
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create new repository
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GH_TOKEN }}" https://api.github.com/repos/${{ steps.read-json.outputs.repo_name }})
+        response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ steps.read-json.outputs.repo_name }})
         if [ $response -eq 404 ]; then
           echo "Repository $repo does not exist. Creating..."
-          curl -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                -d '{"name":"${{ steps.read-json.outputs.repo_name }}"}' \
                 https://api.github.com/user/repos
         else
@@ -54,5 +54,5 @@ jobs:
     #     git push origin main 
     - name: push the contents to the app-repo 
       run: |
-        git remote set-url origin https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
+        git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
         git push -u origin main
