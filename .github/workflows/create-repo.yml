@@ -33,5 +33,5 @@ jobs:
         cd temp-repo
         ls
         echo " pushing code destination repo"
-        git remote set-url origin https://github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
+        git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
         git push -u origin main
