@@ -31,9 +31,7 @@ jobs:
       run: git clone ${{ steps.read-json.outputs.source_repo }} temp-repo
     
     - name: change to the cloned repo
-      run: |
-        cd temp-repo
-        ls
+      run: cd temp-repo
     
     # - name: Configure Git
     #   run: |
@@ -44,8 +42,11 @@ jobs:
     #   run: |
     #     git remote set-url origin https://SVenkataSivaSatish:${{ secrets.GH_TOKEN }}@github.com/SVenkataSivaSatish/app-repo1.git
     #     git push origin main 
-    
     - name: push the contents to the app-repo 
       run: |
+        git init
+        git add .
+        git commit -m "first commit"
+        git remote add origin https://github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
         git remote set-url origin https://github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
         git push -u origin main
