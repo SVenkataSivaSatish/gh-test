@@ -43,9 +43,8 @@ jobs:
     # - name: Push changes
     #   run: |
     #     git remote set-url origin https://SVenkataSivaSatish:${{ secrets.GH_TOKEN }}@github.com/SVenkataSivaSatish/app-repo1.git
-    #     git push origin main
-    
+    #     git push origin main 
     - name: push the contents to the app-repo 
       run: |
-        git remote set-url origin https://github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
+        git remote set-url origin https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
         git push -u origin main
