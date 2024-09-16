@@ -25,7 +25,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
-        response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/${{ steps.read-json.outputs.repo_name }})
+        response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GH_TOKEN }}" https://api.github.com/repos/${{ steps.read-json.outputs.repo_name }})
         if [ $response -eq 404 ]; then
           echo "Repository $repo does not exist. Creating..."
           curl -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
