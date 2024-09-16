@@ -1,0 +1,43 @@
+name: Create and Setup Repository
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create-repo:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Read JSON file
+      id: read-json
+      run: |
+        echo "::set-output name=repo_name::$(jq -r '.repo_name' repo-details.json)"
+        echo "::set-output name=source_repo::$(jq -r '.source_repo' repo-details.json)"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    - name: Create new repository
+      run: |
+        curl -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+             -d '{"name":"${{ steps.read-json.outputs.repo_name }}"}' \
+             https://api.github.com/user/repos
+
+    - name: Pull code from source repository
+      run: |
+        git clone ${{ steps.read-json.outputs.source_repo }} temp-repo
+        cd temp-repo
+        git remote set-url origin https://github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
+        git push -u origin main
