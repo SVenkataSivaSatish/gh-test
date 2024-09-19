@@ -23,17 +23,10 @@ jobs:
 
     - name: Create new repository
       run: |
-        response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ steps.read-json.outputs.repo_name }})
-        echo $response
-        if [ $response -eq 404 ]; then
-          echo "Repository $repo does not exist. Creating..."
-          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                -d '{"name":"${{ steps.read-json.outputs.repo_name }}"}' \
                 https://api.github.com/user/repos
-        else
-          echo "Repository $repo already exists. Skipping..."
-        fi
-
+                
     - name: Pull code from source repository
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
