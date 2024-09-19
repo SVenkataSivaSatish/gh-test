@@ -18,10 +18,10 @@ jobs:
       run: |
         echo "::set-output name=repo_name::$(jq -r '.repo_name' repo-details.json)"
         echo "::set-output name=source_repo::$(jq -r '.source_repo' repo-details.json)"
+      
+    - name: Create new repository
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Create new repository
       run: |
         curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                -d '{"name":"${{ steps.read-json.outputs.repo_name }}"}' \
