@@ -13,31 +13,34 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-
-    - name: Install dependencies
-      run: npm install
-
     - name: Read JSON file
       id: read-json
       run: |
         echo "::set-output name=repo_name::$(jq -r '.repo_name' repo-details.json)"
         echo "::set-output name=source_repo::$(jq -r '.source_repo' repo-details.json)"
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create new repository
       run: |
-        curl -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
-             -d '{"name":"${{ steps.read-json.outputs.repo_name }}"}' \
-             https://api.github.com/user/repos
+        response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ steps.read-json.outputs.repo_name }})
+        echo $response
+        if [ $response -eq 404 ]; then
+          echo "Repository $repo does not exist. Creating..."
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               -d '{"name":"${{ steps.read-json.outputs.repo_name }}"}' \
+                https://api.github.com/user/repos
+        else
+          echo "Repository $repo already exists. Skipping..."
+        fi
 
     - name: Pull code from source repository
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         git clone ${{ steps.read-json.outputs.source_repo }} temp-repo
         cd temp-repo
-        git remote set-url origin https://github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
+        ls
+        echo " pushing code destination repo"
+        git remote set-url origin https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
         git push -u origin main
