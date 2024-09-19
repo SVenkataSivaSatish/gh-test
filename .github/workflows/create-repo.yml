@@ -19,31 +19,28 @@ jobs:
         echo "::set-output name=repo_name::$(jq -r '.repo_name' repo-details.json)"
         echo "::set-output name=source_repo::$(jq -r '.source_repo' repo-details.json)"
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create new repository
       run: |
-        curl -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
-             -d '{"name":"${{ steps.read-json.outputs.repo_name }}"}' \
-             https://api.github.com/user/repos
+        response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ steps.read-json.outputs.repo_name }})
+        echo $response
+        if [ $response -eq 404 ]; then
+          echo "Repository $repo does not exist. Creating..."
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               -d '{"name":"${{ steps.read-json.outputs.repo_name }}"}' \
+                https://api.github.com/user/repos
+        else
+          echo "Repository $repo already exists. Skipping..."
+        fi
 
     - name: Pull code from source repository
-      run: git clone ${{ steps.read-json.outputs.source_repo }} temp-repo
-    
-    - name: change to the cloned repo
-      run: cd temp-repo
-    
-    # - name: Configure Git
-    #   run: |
-    #     git config user.name "github-actions[bot]"
-    #     git config user.email "github-actions[bot]@users.noreply.github.com"
-    
-    # - name: Push changes
-    #   run: |
-    #     git remote set-url origin https://SVenkataSivaSatish:${{ secrets.GH_TOKEN }}@github.com/SVenkataSivaSatish/app-repo1.git
-    #     git push origin main 
-    
-    - name: push the contents to the app-repo 
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
-        git remote set-url origin https://github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
+        git clone ${{ steps.read-json.outputs.source_repo }} temp-repo
+        cd temp-repo
+        ls
+        echo " pushing code destination repo"
+        git remote set-url origin https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository_owner }}/${{ steps.read-json.outputs.repo_name }}.git
         git push -u origin main
